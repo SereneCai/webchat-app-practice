@@ -23,6 +23,11 @@ io.on('connection', socket =>{
     })
 
     //io.emit(); // to all users
+
+    //listen for chat messages
+    socket.on('chatMessage', (message)=>{
+        io.emit('message', message);
+    })
 })
 const PORT = process.env.PORT || 3000;
 

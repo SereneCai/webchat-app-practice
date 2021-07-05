@@ -9,6 +9,6 @@ chatForm.addEventListener('submit', (event)=>{
 
     const message = event.target.elements.msg.value; //targets the input with id 'msg' and grab the value
 
-    console.log(message);
+    socket.emit('chatMessage', message); //send to server
 
 })

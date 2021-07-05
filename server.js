@@ -11,7 +11,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //run when client connects
 io.on('connection', socket =>{
-    console.log("new connection");
+
+    socket.emit("message", "Welcome to the chatroom"); //emit to single user connecting
+
+    //when user connects
+    socket.broadcast.emit("message", "A user have connected."); //emits to all except the user connecting
+
+    //when user disconnects
+    socket.on('disconnect', ()=>{
+        io.emit("message", "A user had left the room.")
+    })
+
+    //io.emit(); // to all users
 })
 const PORT = process.env.PORT || 3000;
 

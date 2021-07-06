@@ -8,7 +8,7 @@ const chatRoomName = "ChatRoom";
 
 const app = express();
 const server = http.createServer(app); //to use socket.io, we need access to it directly, and thus .createServer 
-const io = socketio(server); 
+const io = socketio(server); // can put (server, {cors: {origin:'*'}}) to avoid cors problem
 
 app.use(express.static(path.join(__dirname, 'public')));
 

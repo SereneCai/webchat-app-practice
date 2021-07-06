@@ -3,7 +3,7 @@ const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
 const formatMsg = require('./utils/message');
-const {userJoin, getUser} = require('./utils/user');
+const {userJoin, getUser, userLeave, getRoomUsers} = require('./utils/user');
 const chatRoomName = "ChatRoom";
 
 const app = express();
@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //run when client connects
 io.on('connection', socket =>{
+
     socket.on("joinRoom", ({username, room})=>{
 
         const user = userJoin(socket.id, username, room);
@@ -24,13 +25,16 @@ io.on('connection', socket =>{
 
     //when user connects
     //user .to(user.room) tp emit to a specific room
-    socket.broadcast.to(user.room).emit("message", formatMsg(chatRoomName, `${user.username} has joined the chat.`)); //emits to all except the user connecting
-    })
+    socket.broadcast.to(user.room).emit("message", 
+    formatMsg(chatRoomName, `${user.username} has joined the chat.`)); //emits to all except the user connecting
 
-    //when user disconnects
-    socket.on('disconnect', ()=>{
-        io.emit("message", formatMsg(chatRoomName, "A user has left the room."))
-    })
+    //send users and room info
+    io.to(user.room).emit('roomUsers', {
+        room: user.room,
+        users: getRoomUsers(user.room)
+        });
+
+    });
 
     //io.emit(); // to all users
 
@@ -38,6 +42,15 @@ io.on('connection', socket =>{
     socket.on('chatMessage', (message)=>{
         const user = getUser(socket.id);
         io.to(user.room).emit('message', formatMsg(user.username, message));
+    })
+
+    //when user disconnects
+    socket.on('disconnect', ()=>{
+        const user = userLeave(socket.id);
+        if(user){
+            io.to(user.room).emit("message", formatMsg(chatRoomName, `${user.username} has left the room.`))
+        }
+        
     })
 })
 const PORT = process.env.PORT || 3000;

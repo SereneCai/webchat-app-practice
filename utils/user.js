@@ -9,7 +9,7 @@ function userJoin(id, username, room){
 }
 
 function getUser(id){
-    return user.find(user => user.id === id)
+    return users.find(user => user.id === id);
 }
 
 module.exports = {userJoin, getUser};

@@ -37,7 +37,7 @@ io.on('connection', socket =>{
     //listen for chat messages
     socket.on('chatMessage', (message)=>{
         const user = getUser(socket.id);
-        io.emit('message', formatMsg('USER', message));
+        io.to(user.room).emit('message', formatMsg(user.username, message));
     })
 })
 const PORT = process.env.PORT || 3000;

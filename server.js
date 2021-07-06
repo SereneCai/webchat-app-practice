@@ -13,11 +13,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //run when client connects
 io.on('connection', socket =>{
+    socket.on("joinRoom", ({username, room})=>{
 
     socket.emit("message", formatMsg(chatRoomName, "Welcome to the Chatroom!")); //emit to single user connecting
 
     //when user connects
     socket.broadcast.emit("message", formatMsg(chatRoomName, "A user connected")); //emits to all except the user connecting
+    })
 
     //when user disconnects
     socket.on('disconnect', ()=>{

@@ -3,6 +3,7 @@ const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
 const formatMsg = require('./utils/message');
+const {userJoin, getUser} = require('./utils/user');
 const chatRoomName = "ChatRoom";
 
 const app = express();
@@ -15,10 +16,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', socket =>{
     socket.on("joinRoom", ({username, room})=>{
 
+        const user = userJoin(socket.id, username, room);
+
+        socket.join(user.room);
+
     socket.emit("message", formatMsg(chatRoomName, "Welcome to the Chatroom!")); //emit to single user connecting
 
     //when user connects
-    socket.broadcast.emit("message", formatMsg(chatRoomName, "A user connected")); //emits to all except the user connecting
+    //user .to(user.room) tp emit to a specific room
+    socket.broadcast.to(user.room).emit("message", formatMsg(chatRoomName, `${user.username} has joined the chat.`)); //emits to all except the user connecting
     })
 
     //when user disconnects
@@ -30,6 +36,7 @@ io.on('connection', socket =>{
 
     //listen for chat messages
     socket.on('chatMessage', (message)=>{
+        const user = getUser(socket.id);
         io.emit('message', formatMsg('USER', message));
     })
 })
